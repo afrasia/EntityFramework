@@ -1,0 +1,30 @@
+﻿@model IEnumerable<EFCore.Models.DriverCarGroupData>
+@{
+    ViewData["Title"] = "Driver and Cars Statistics";
+}
+
+<h2>Driver and Cars Statistics</h2>
+
+<table>
+    <tr>
+        <th>
+            Driver Name
+        </th>
+        <th>
+            Car Count
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.DriverName)
+            </td>
+            <td>
+                @item.CarCount
+            </td>
+        </tr>
+    }
+</table>
+
