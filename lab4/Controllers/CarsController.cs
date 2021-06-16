@@ -23,9 +23,8 @@ namespace EFCore.Controllers
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
             ViewData["CurrentSort"] = sortOrder;
-            ViewData["MakeSortParm"] = String.IsNullOrEmpty(sortOrder) ? "make_desc" : "";
+            ViewData["MakeSortParm"] = string.IsNullOrEmpty(sortOrder) ? "make_desc" : "";
             ViewData["PriceSortParm"] = sortOrder == "Price" ? "price_desc" : "Price";
-            ViewData["CurrentFilter"] = searchString;
 
             var cars = from s in _context.Cars.Include(c=>c.Driver)
                        select s;
@@ -39,22 +38,18 @@ namespace EFCore.Controllers
                 searchString = currentFilter;
             }
 
-            switch (sortOrder)
+            cars = searchString == null ? cars : cars.Where(c => c.Make.Equals(searchString));
+
+            cars = sortOrder switch
             {
-                case "make_desc":
-                    cars = cars.OrderByDescending(s => s.Make);
-                    break;
-                case "Price":
-                    cars = cars.OrderBy(s => s.Price);
-                    break;
-                case "price_desc":
-                    cars = cars.OrderByDescending(s => s.Price);
-                    break;
-                default:
-                    cars = cars.OrderBy(s => s.Make);
-                    break;
-            }
+                "make_desc" => cars.OrderByDescending(s => s.Make),
+                "Price" => cars.OrderBy(s => s.Price),
+                "price_desc" => cars.OrderByDescending(s => s.Price),
+                _ => cars.OrderBy(s => s.Make),
+            };
+
             int pageSize = 3;
+            ViewData["CurrentFilter"] = searchString;
             return View(await PaginatedList<Car>.CreateAsync(cars.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
@@ -65,7 +60,7 @@ namespace EFCore.Controllers
             {
                 return NotFound();
             }
-
+            
             var car = await _context.Cars
                 .Include(c => c.Driver)
                 .FirstOrDefaultAsync(m => m.ID == id);

@@ -13,6 +13,7 @@ namespace EFCore.Data
         public DbSet<Driver> Drivers { get; set; }
         public DbSet<Car> Cars { get; set; }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Driver>().ToTable("drivers");
