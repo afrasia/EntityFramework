@@ -47,7 +47,7 @@ namespace EFCore.Controllers
             {
                 return NotFound();
             }
-
+            
             var driver = await _context.Drivers
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (driver == null)
