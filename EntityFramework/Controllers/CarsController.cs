@@ -22,7 +22,7 @@ namespace EntityFramework.Controllers
             ViewData["MakeSortParm"] = string.IsNullOrEmpty(sortOrder) ? "make_desc" : "";
             ViewData["PriceSortParm"] = sortOrder == "Price" ? "price_desc" : "Price";
 
-            var cars = from s in _context.Cars?.Include(c => c.Driver)
+            var cars = from s in _context.Cars.Include(c => c.Driver)
                        select s;
 
             if (searchString != null)
@@ -114,9 +114,9 @@ namespace EntityFramework.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string? id, [Bind("ID,Make,Price,DriverID")] Car car)
+        public async Task<IActionResult> Edit(string id, [Bind("ID,Make,Price,DriverID")] Car car)
         {
-            if (id == null)
+            if (id != car.ID)
             {
                 return NotFound();
             }
@@ -131,12 +131,21 @@ namespace EntityFramework.Controllers
                 }
                 catch (DbUpdateException /* ex */)
                 {
-                    //Log the error (uncomment ex variable name and write a log.)
-                    ModelState.AddModelError("", "Unable to save changes. " +
+                    if (!CarExists(car.ID))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        //Log the error (uncomment ex variable name and write a log.)
+                        ModelState.AddModelError("", "Unable to save changes. " +
                         "Try again, and if the problem persists, " +
                         "see your system administrator.");
+                    }
                 }
+                return RedirectToAction(nameof(Index));
             }
+            ViewData["DriverID"] = new SelectList(_context.Drivers, "ID", "FirstName", car.DriverID);
             return View(car);
         }
 
@@ -165,7 +174,7 @@ namespace EntityFramework.Controllers
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             var car = await _context.Cars.FindAsync(id);
-            _context.Cars.Remove(car!);
+            _context.Cars.Remove(car);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

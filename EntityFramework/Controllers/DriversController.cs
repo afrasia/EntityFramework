@@ -18,12 +18,14 @@ namespace EntityFramework.Controllers
         // GET: Drivers
         public async Task<IActionResult> Index(int? ID)
         {
-            var viewModel = new DriverCarViewModel();
-            viewModel.Drivers = await _context.Drivers
+            var viewModel = new DriverCarViewModel
+            {
+                Drivers = await _context.Drivers
                   .Include(i => i.Cars)
                   .AsNoTracking()
                   .OrderBy(i => i.LastName)
-                  .ToListAsync();
+                  .ToListAsync()
+            };
 
             if (ID != null)
             {
@@ -150,7 +152,7 @@ namespace EntityFramework.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var driver = await _context.Drivers.FindAsync(id);
-            _context.Drivers.Remove(driver!);
+            _context.Drivers.Remove(driver);
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

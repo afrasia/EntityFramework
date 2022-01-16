@@ -26,17 +26,5 @@ namespace EntityFramework.Controllers
             return View();
         }
 
-        public async Task<ActionResult> About()
-        {
-            IQueryable<DriverCarGroupData> data =
-                from car in _context.Cars
-                group car by car.DriverID into dateGroup
-                select new DriverCarGroupData()
-                {
-                    DriverName = _context.Drivers.Where(d => d.ID == dateGroup.Key).Single().LastName,
-                    CarCount = dateGroup.Count()
-                };
-            return View(await data.AsNoTracking().ToListAsync());
-        }
     }
 }

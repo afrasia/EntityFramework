@@ -9,8 +9,8 @@ namespace EntityFramework.Data
         {
         }
 
-        public DbSet<Driver> Drivers { get; set; } = null!;
-        public DbSet<Car> Cars { get; set; } = null!;
+        public DbSet<Driver> Drivers { get; set; }
+        public DbSet<Car> Cars { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
