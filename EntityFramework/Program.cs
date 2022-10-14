@@ -1,4 +1,6 @@
 using EntityFramework.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace EntityFramework
 {
@@ -6,9 +8,15 @@ namespace EntityFramework
     {
         public static void Main(string[] args)
         {
-            var host = CreateHostBuilder(args).Build();
+            var builder = WebApplication.CreateBuilder(args);
 
-            using (var scope = host.Services.CreateScope())
+            // Add services to the container.
+            builder.Services.AddControllersWithViews();
+            var connection = builder.Configuration.GetConnectionString("DefaultConnection");
+            builder.Services.AddDbContext<DrivingDbContext>(options => options.UseSqlServer(connection));
+            var app = builder.Build();
+
+            using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
                 try
@@ -23,15 +31,22 @@ namespace EntityFramework
                 }
             }
 
-            host.Run();
-        }
+            // Configure the HTTP request pipeline.
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseExceptionHandler("/Home/Error");
+            }
+            app.UseStaticFiles();
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            app.Run();
+        }
     }
 }
-
